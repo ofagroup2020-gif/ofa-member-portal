@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>OFA GROUP メンバー専用ポータル</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --ofa-yellow: #ffd600;
+      --ofa-black: #111111;
+      --ofa-red: #e53935;
+      --bg-gray: #f4f4f4;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-gray);
+      color: #222;
+    }
+
+    /* 共通コンテナ */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* ログイン画面 */
+    #login-area {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-card {
+      background: #fff;
+      padding: 24px 20px 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.09);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .logo {
+      font-weight: 800;
+      font-size: 24px;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .logo span {
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--ofa-black);
+      color: var(--ofa-yellow);
+      display: inline-block;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 18px;
+    }
+
+    .login-label {
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .login-input:focus {
+      border-color: var(--ofa-yellow);
+      box-shadow: 0 0 0 2px rgba(255,214,0,0.35);
+    }
+
+    .login-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+      background: linear-gradient(135deg, var(--ofa-yellow), #ffea4d);
+      color: #000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+    }
+
+    .login-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      opacity: 0.9;
+    }
+
+    .login-hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .error-msg {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--ofa-red);
+      min-height: 18px;
+    }
+
+    /* ポータル画面 */
+    #portal-area {
+      display: none;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #ffffff, #f9f9f9);
+    }
+
+    .portal-header {
+      background: var(--ofa-black);
+      color: #fff;
+      padding: 14px 0;
+    }
+
+    .portal-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .logout-btn {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid #fff;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .portal-main {
+      padding: 20px 0 40px;
+    }
+
+    .welcome-card {
+      background: #fff8d6;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border-left: 5px solid var(--ofa-yellow);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .welcome-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    /* ボタンレイアウト */
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .portal-button {
+      text-decoration: none;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 12px;
+      border: 1px solid #eee;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .portal-button::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,214,0,0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .portal-button:hover::before {
+      opacity: 1;
+    }
+
+    .portal-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.07);
+    }
+
+    .btn-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #111;
+    }
+
+    .btn-desc {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .btn-tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #111;
+      color: #ffd600;
+      letter-spacing: 0.07em;
+    }
+
+    @media (max-width: 600px) {
+      .portal-header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .logout-btn {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ログインエリア -->
+<div id="login-area">
+  <div class="login-card">
+    <div class="logo"><span>OFA GROUP</span></div>
+    <div class="subtitle">メンバー専用ポータルサイト</div>
+
+    <div class="login-label">パスワード</div>
+    <input
+      id="password-input"
+      type="password"
+      class="login-input"
+      placeholder="パスワードを入力"
+      onkeydown="if(event.key==='Enter'){handleLogin();}"
+    />
+
+    <button class="login-btn" onclick="handleLogin()">ログイン</button>
+
+    <div id="error-msg" class="error-msg"></div>
+
+    <div class="login-hint">
+      ※ シンプルなパスワードロックです。<br>
+      本格的な会員システムではありません。
+    </div>
+  </div>
+</div>
+
+<!-- ポータルエリア -->
+<div id="portal-area">
+  <header class="portal-header">
+    <div class="container portal-header-inner">
+      <div>
+        <div class="header-title">OFA GROUP MEMBER PORTAL</div>
+        <div class="header-sub">点呼・車両・LINE・掲示板・求人を一つに集約</div>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">ログアウト</button>
+    </div>
+  </header>
+
+  <main class="portal-main">
+    <div class="container">
+      <div class="welcome-card">
+        <div class="welcome-title">ようこそ、OFAメンバー専用ポータルへ</div>
+        <div>
+          日々の点呼・車両管理・情報共有・LINE・求人など、<br>
+          OFAで働くための動線をここにまとめています。
+        </div>
+      </div>
+
+      <div class="button-grid">
+
+        <!-- 点呼サイト -->
+        <a class="portal-button" href="https://example.com/tenko" target="_blank">
+          <!-- ↑ 点呼サイトのURLに差し替えてください -->
+          <div class="btn-title">点呼サイト</div>
+          <div class="btn-desc">
+            出庫・帰庫時の点呼入力フォーム。<br>
+            毎日の安全運行の記録はこちらから。
+          </div>
+          <div class="btn-tag">TENKO</div>
+        </a>
+
+        <!-- メンバー匿名掲示板 -->
+        <a class="portal-button" href="https://example.com/bbs" target="_blank">
+          <!-- ↑ 匿名掲示板ツール / Googleフォーム などのURLに差し替え -->
+          <div class="btn-title">メンバー匿名掲示板</div>
+          <div class="btn-desc">
+            悩み・提案・現場の声を匿名で投稿。<br>
+            気になっていることを気軽にシェア。
+          </div>
+          <div class="btn-tag">BOARD</div>
+        </a>
+
+        <!-- 車両管理サイト -->
+        <a class="portal-button" href="https://example.com/vehicle" target="_blank">
+          <!-- ↑ 車両管理スプレッドシート / フォームなどのURLに差し替え -->
+          <div class="btn-title">車両管理サイト</div>
+          <div class="btn-desc">
+            車検・オイル交換・保険・事故報告など。<br>
+            車両に関する情報を一元管理。
+          </div>
+          <div class="btn-tag">VEHICLE</div>
+        </a>
+
+        <!-- OFA 一般公式LINE 追加 -->
+        <a class="portal-button" href="https://lin.ee/XXXXX" target="_blank">
+          <!-- ↑ OFA一般公式LINE の招待URLに差し替え -->
+          <div class="btn-title">OFA 一般公式LINE 追加</div>
+          <div class="btn-desc">
+            一般向け求人・問い合わせ窓口のLINE。<br>
+            友人・紹介者にもここを案内。
+          </div>
+          <div class="btn-tag">LINE GENERAL</div>
+        </a>
+
+        <!-- OFA メンバー公式LINE 追加 -->
+        <a class="portal-button" href="https://lin.ee/XXXXX" target="_blank">
+          <!-- ↑ OFAメンバーシップLINE のURLに差し替え -->
+          <div class="btn-title">OFA メンバー公式LINE 追加</div>
+          <div class="btn-desc">
+            契約者専用のメンバーシップLINE。<br>
+            報告・点呼・事故・車両などを1つに集約。
+          </div>
+          <div class="btn-tag">LINE MEMBER</div>
+        </a>
+
+        <!-- 求人検索サイト -->
+        <a class="portal-button" href="https://example.com/jobs" target="_blank">
+          <!-- ↑ OFA求人ページ / 外部求人サイトのURLに差し替え -->
+          <div class="btn-title">求人検索サイト</div>
+          <div class="btn-desc">
+            OFAグループの募集案件・エリア情報。<br>
+            新規案件や増員募集をここで確認。
+          </div>
+          <div class="btn-tag">JOBS</div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ★ ここでパスワードを設定（好きな文字列に変更OK）
+  const PORTAL_PASSWORD = "ofa2025";
+
+  function handleLogin() {
+    const input = document.getElementById("password-input").value.trim();
+    const errorMsg = document.getElementById("error-msg");
+
+    if (!input) {
+      errorMsg.textContent = "パスワードを入力してください。";
+      return;
+    }
+
+    if (input === PORTAL_PASSWORD) {
+      // ログイン成功
+      document.getElementById("login-area").style.display = "none";
+      document.getElementById("portal-area").style.display = "block";
+      errorMsg.textContent = "";
+      // パスワードフィールドをクリア
+      document.getElementById("password-input").value = "";
+    } else {
+      errorMsg.textContent = "パスワードが違います。";
+    }
+  }
+
+  function handleLogout() {
+    document.getElementById("portal-area").style.display = "none";
+    document.getElementById("login-area").style.display = "flex";
+  }
+</script>
+</body>
+</html>
